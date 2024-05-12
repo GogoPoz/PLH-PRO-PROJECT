@@ -1,5 +1,4 @@
 from class_income import Income
-
 class Incomes:
     def __init__(self):
         """
@@ -36,7 +35,6 @@ class Incomes:
         """
         while True:
             description_input = input(message)
-
             if description_input.strip() == "":
                 print("Λάθος είσοδος. Παρακαλώ προσπαθήστε ξανά")
                 continue
@@ -61,7 +59,7 @@ class Incomes:
 
     def edit_income(self, description):
         """
-        Η μέθοδος εντοπίζει ένα έσοδο με βάση το όνομα του(descreption) και δίνει την δυνατότητα για επεξεργασία
+        Η μέθοδος εντοπίζει ένα έσοδο με βάση το όνομα του(descrιption) και δίνει την δυνατότητα για επεξεργασία
         ενός η όλων των στοιχείων του.
         """
         found = False #μεταβλητή που δηλώνει ότι βρήκαμε το προς αναζήτηση στοιχείο
@@ -70,7 +68,7 @@ class Incomes:
                 if income.description == description:
                     found = True #βρέθηκε το στοιχείο
                     choice = int(input("Επιλέξτε το στοιχείο προς τροποποίηση:\n1)Ποσό\n2)Όνομα\n"
-                                   "3)Πρόσθεση/αφαίρεση από τα μηνιαία έσοδα\n4)Όλα τα παραπάνω"))
+                                   "3)Πρόσθεση/αφαίρεση από τα μηνιαία έσοδα\n4)Όλα τα παραπάνω\n"))
                     if choice == 1:#αλλαγή μόνο ποσό
                         income.amount = self.check_amount("Εισάγετε το νέο ποσό: ")
                         print("Το ποσό άλλαξε επιτυχώς.")
@@ -106,15 +104,27 @@ class Incomes:
         """
         Η μέθοδος εντοπίζει ένα έσοδο με βάση το όνομα του(description) και το διαγράφει
         """
-        for income in self.incomes:
-            if income.description == description:
-                self.incomes.remove(income)
-        print("Το έσοδο διαγράφηκε επιτυχώς")
+        found = False  # μεταβλητή που δηλώνει ότι βρήκαμε το προς αναζήτηση στοιχείο
+        while True:
+            for income in self.incomes:
+                if income.description == description:
+                    found = True  # βρέθηκε το στοιχείο
+                    self.incomes.remove(income)
+                    print("Το έσοδο διαγράφηκε επιτυχώς")
+            if found:
+                break
+            else:#περίπτωση λάθος ονόματος
+                print(f"Δεν βρέθηκε έσοδο με όνομα '{description}'. Παρακαλώ δοκιμάστε ξανά.")
+                description = input("Εισάγετε το όνομα του εσόδου προς διαγραφή: ")
+                continue
 
     def __str__(self):
-        st = ""
-        for income in self.incomes:
-            st += "\n" + str(income)
+        if self.incomes == []:
+            st = "Δεν βρέθηκαν έσοδα."
+        else:
+            st = ""
+            for income in self.incomes:
+                st += "\n" + str(income)
         return st
 
 def main():
