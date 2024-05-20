@@ -4,6 +4,7 @@ from db_functions import *
 from defensive_mechanisms import *
 from datetime import date
 
+
 class Transactions:
     """
     type: integer θα παίρνει τιμές 1 και 2. 1 = έσοδο, 2 = έξοδο
@@ -13,6 +14,7 @@ class Transactions:
     insert_date: date Παίρνει αυτόματα την ημερομηνία εισαγωγής κάθε συναλλαγής
     total: float Κρατάει το συνολικό χρηματικό ποσό
     """
+
     def __init__(self, connector):
         self.type = None
         self.monthly = None
@@ -42,7 +44,7 @@ class Transactions:
 
     def add_to_total(self, amount):
         """Η μέθοδος προσθέτει στα συνολικά χρήματα το ποσό που παίρνει σαν όρισμα"""
-        results = query_fetch_all(self.connector,"SELECT * FROM total_amount")
+        results = query_fetch_all(self.connector, "SELECT * FROM total_amount")
         if results:
             data = results[0]
             self.total = data["total"]
@@ -70,26 +72,35 @@ class Transactions:
             insert_data(self.connector, query)
             self.connector.commit()
 
-    """def load_monthly(self, sub_type):
+    def load_monthly(self):
+        """Η μέθοδος παίρνει όλες τις συναλλαγές που έχουν χαρακτηριστεί ως μηνιαίες κάθε φορά που εκτελείται το
+        πρόγραμμα. Συγκρίνει την ημερομηνία κάθε συναλλαγής με την τωρινή ημερομηνία και προσθέτει η αφαιρεί το ανάλογο
+        ποσό, έπειτα ενημερώνει την ημερομηνία της συναλλαγής( θέτει τον μήνα και τον χρόνο στο τελευταίο Update που
+        έγινε)."""
         results = query_fetch_all(self.connector, "SELECT * FROM transactions WHERE sub_type_of_trans=1")
         if results:
             for result in results:
-                data = results[0]
-                self.insert_date = data["insert_date"]
+                self.type = result["type_of_trans"]
+                self.description = result["descr_of_trans"]
+                self.amount = result["amount"]
+                self.insert_date = result["insert_date"]
                 old_date = self.insert_date
                 today = date.today()
                 if self.type == 1:
-                    while old_date <= today:
+                    while (old_date.year < today.year) or (
+                            old_date.year == today.year and old_date.month < today.month):
                         old_date = add_one_month(old_date)
                         self.add_to_total(self.amount)
-                        delete_or_update_data(self.connector, f"UPDATE transactions SET insert_date='{old_date}'")
+                        delete_or_update_data(self.connector, f"UPDATE transactions SET insert_date='{old_date}' "
+                                                              f"WHERE descr_of_trans='{self.description}'")
                         self.connector.commit()
                 elif self.type == 2:
-                    while old_date <= today:
+                    while (old_date.year < today.year) or (
+                            old_date.year == today.year and old_date.month < today.month):
                         old_date = add_one_month(old_date)
                         self.subtract_from_total(self.amount)
                         delete_or_update_data(self.connector, f"UPDATE transactions SET insert_date='{old_date}'")
-                        self.connector.commit()"""
+                        self.connector.commit()
 
     def create_transaction(self):
         """Η μέθοδος δημιουργεί μία καινούρια συναλλαγή και την αποθηκεύει στη βάση δεδομένων εφόσον δεν υπάρχει ήδη
@@ -225,6 +236,7 @@ class Transactions:
 def main():
     connector = open_connection()
     transaction = Transactions(connector)
+    transaction.load_monthly()
 
     while True:
         choice = int(input("1-Create: \n2-Update: \n3-Delete: \n4-EXIT: \n"))
