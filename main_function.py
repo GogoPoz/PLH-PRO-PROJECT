@@ -85,12 +85,9 @@ def main():
                 
     """ #Επιλογή EXCEL      
         elif action==3:   """
-
-            
-        
-    
-    
     
     
     close_connection(connection)  
 
+if __name__ == "__main__":
+    main()
