@@ -51,3 +51,4 @@ def query_fetch_all(connection, query):
         return rows
     except MYSQL.Error as e:
         print("Error" + str(e))
+
