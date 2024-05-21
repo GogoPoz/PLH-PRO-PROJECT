@@ -53,4 +53,3 @@ def add_one_month(orig_date):
     new_day = min(orig_date.day, last_day_of_month)
 
     return orig_date.replace(year=new_year, month=new_month, day=new_day)
-
