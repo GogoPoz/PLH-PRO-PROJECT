@@ -1,10 +1,14 @@
 from class_transactions import *
 from db_functions import *
+from bar_chart_expenses import top_expenses_bar_chart
 
 
 def main():
+    #Σύνδεση με την βάση δεδομένων
     connection=open_connection()
+    #Δημιουργία ενός αντικειμένου transaction της κλάσης Transactions το οποίο αλληλεπιδρά με την βάση δεδομένων
     transaction=Transactions(connection)
+    #Κλήση της load_monthly για φόρτωμα των συναλλαγών και ενημέρωση των μηνιαίων 
     transaction.load_monthly()
     
     while True:
@@ -43,16 +47,21 @@ def main():
                 else:
                     print("Μη έγκυρη επιλογή,παρακαλώ προσπαθήστε ξανά.")
                     
+   
+        #Επιλογή ΓΡΑΦΙΚΗΣ ΑΝΑΠΑΡΑΣΤΑΣΗΣ            
+        elif action==2:
+            #Λήψη ημερομηνιών από τον χρήστη
+            start_date=input("Εισάγετε την ημερομηνία έναρξης σε μορφή YYYY-MM: ")
+            end_date=input("Εισάγετε την ημερομηνία λήξης σε μορφή YYYY-MM: ")
+            
+            #Εμφάνιση του ραβδογράμματος στο επιλεγμένο διάστημα          
+            top_expenses_bar_chart(start_date, end_date)           
+        
         else:
-            print("Μη έγκυρη επιλογή, παρακαλώ προσπαθήστε ξανά.")
-   
-   
-    """ #Επιλογή ΓΡΑΦΙΚΗΣ ΑΝΑΠΑΡΑΣΤΑΣΗΣ            
-        elif action==2:                """
-                    
+            print("Μη έγκυρη επιλογή, παρακαλώ προσπαθήστε ξανά.")             
                 
-    """ #Επιλογή EXCEL      
-        elif action==3:   """
+    """   #Επιλογή EXCEL      
+        elif action==3:  """
     
     
     close_connection(connection)  
