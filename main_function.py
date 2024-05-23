@@ -1,6 +1,6 @@
 from class_transactions import *
 from db_functions import *
-from bar_chart_expenses import top_expenses_bar_chart
+from charts import top_expenses_bar_chart
 
 
 def main():
