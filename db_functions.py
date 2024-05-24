@@ -8,9 +8,9 @@ def open_connection():
     try:
         return MYSQL.connect(
             host="localhost",
-            user="db_finance_user",
-            password="vsc127wx@127",
-            database="financedb"
+            user="root",
+            password="1234qazwsx4321",
+            database="transactionsdb"
         )
     except MYSQL.Error as e:
         print("Error" + str(e))
@@ -51,4 +51,3 @@ def query_fetch_all(connection, query):
         return rows
     except MYSQL.Error as e:
         print("Error" + str(e))
-
