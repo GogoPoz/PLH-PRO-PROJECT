@@ -1,5 +1,3 @@
-import datetime
-
 from db_functions import *
 from defensive_mechanisms import *
 from datetime import date
@@ -117,7 +115,6 @@ class Transactions:
         elif results is None:
             self.monthly = int(input("Πρόκειται για μηνιαία συναλλαγή;"))
             self.type = int(input("H συναλλαγή σας αφορά έσοδο η έξοδο;"))
-            print(f"Τύπος συναλλαγής: {self.type}")
             self.amount = check_amount("Εισάγετε το ποσό της συναλλαγής: ")
             self.insert_date = date.today()
             query = f"""INSERT INTO transactions (type_of_trans, sub_type_of_trans, category, descr_of_trans, amount,
@@ -225,7 +222,7 @@ class Transactions:
         if results is None:
             print(f"Δεν βρέθηκε συναλλαγή με όνομα {description}. Παρακαλώ δοκιμάστε ξανά.")
             return
-        # διαγραφή συναλλαγής από την βάση δεδομένων
+        # διαγραφή συναλλαγής από τη βάση δεδομένων
         else:
             query = f"DELETE FROM transactions WHERE descr_of_trans='{self.description}'"
             delete_or_update_data(self.connector, query)
@@ -253,3 +250,4 @@ def main():
 
 
 main()
+
