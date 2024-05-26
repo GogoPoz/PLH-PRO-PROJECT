@@ -4,6 +4,7 @@ from charts import top_expenses_bar_chart
 
 
 def main():
+    setup_database()
     #Σύνδεση με την βάση δεδομένων
     connection=open_connection()
     #Δημιουργία ενός αντικειμένου transaction της κλάσης Transactions το οποίο αλληλεπιδρά με την βάση δεδομένων

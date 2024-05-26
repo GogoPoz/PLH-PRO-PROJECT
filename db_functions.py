@@ -8,9 +8,9 @@ def open_connection():
     try:
         return MYSQL.connect(
             host="localhost",
-            user="db_finance_user",
-            password="vsc127wx@127",
-            database="financedb"
+            user="root",
+            password="1234qazwsx4321",
+            database="transactionsdb"
         )
     except MYSQL.Error as e:
         print("Error" + str(e))
@@ -22,6 +22,52 @@ def close_connection(connection):
         connection.close()
     except MYSQL.Error as e:
         print("Error" + str(e))
+
+
+def import_sql_file(sql_file):
+    try:
+        with open(sql_file, 'r') as f:
+            sql_script = f.read()
+        return sql_script
+    except FileNotFoundError:
+        print("Το αρχείο SQL δεν βρέθηκε.")
+        return None
+    except Exception as e:
+        print("Σφάλμα κατά την ανάγνωση του αρχείου SQL:", e)
+        return None
+
+
+def create_database():
+    connection = open_connection()
+    if connection:
+        try:
+            cursor = connection.cursor()
+            cursor.execute("CREATE DATABASE IF NOT EXISTS transactionsdb")
+            connection.commit()
+            cursor.close()
+            close_connection(connection)
+            print("Η βάση δεδομένων δημιουργήθηκε επιτυχώς ή υπάρχει ήδη.")
+        except MYSQL.Error as e:
+            print("Error: " + str(e))
+            close_connection(connection)
+    else:
+        print("Η σύνδεση στη βάση δεδομένων απέτυχε.")
+
+
+def setup_database():
+    create_database()
+    connection = open_connection()
+    if connection:
+        try:
+            # Σύνδεση στη συγκεκριμένη βάση δεδομένων
+            connection.database = "transactionsdb"
+            import_sql_file('transactions.sql')
+            close_connection(connection)
+        except MYSQL.Error as e:
+            print("Error: " + str(e))
+            close_connection(connection)
+    else:
+        print("Η σύνδεση στη βάση δεδομένων απέτυχε.")
 
 
 def insert_data(connection, query):
