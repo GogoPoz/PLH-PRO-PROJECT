@@ -3,6 +3,18 @@ import mysql.connector
 MYSQL = mysql.connector
 
 
+def open_connection_without_database():
+    try:
+        return MYSQL.connect(
+            host="localhost",
+            user="root",
+            password="1234qazwsx4321"
+        )
+    except MYSQL.Error as e:
+        print("Error" + str(e))
+        return None
+
+
 def open_connection():
     """ Η συνάρτηση δημιουργεί connection με το database"""
     try:
@@ -14,6 +26,7 @@ def open_connection():
         )
     except MYSQL.Error as e:
         print("Error" + str(e))
+        return None
 
 
 def close_connection(connection):
@@ -24,11 +37,19 @@ def close_connection(connection):
         print("Error" + str(e))
 
 
-def import_sql_file(sql_file):
+def import_sql_file(sql_file, connection):
     try:
         with open(sql_file, 'r') as f:
+            cursor = connection.cursor()
             sql_script = f.read()
-        return sql_script
+            sql_commands = sql_script.split(";")
+            for command in sql_commands:
+                try:
+                    cursor.execute(command)
+                    connection.commit()
+                except MYSQL.Error as e:
+                    print("Command skipped: ", e)
+            cursor.close()
     except FileNotFoundError:
         print("Το αρχείο SQL δεν βρέθηκε.")
         return None
@@ -37,37 +58,43 @@ def import_sql_file(sql_file):
         return None
 
 
-def create_database():
-    connection = open_connection()
-    if connection:
-        try:
-            cursor = connection.cursor()
-            cursor.execute("CREATE DATABASE IF NOT EXISTS transactionsdb")
-            connection.commit()
-            cursor.close()
-            close_connection(connection)
-            print("Η βάση δεδομένων δημιουργήθηκε επιτυχώς ή υπάρχει ήδη.")
-        except MYSQL.Error as e:
-            print("Error: " + str(e))
-            close_connection(connection)
-    else:
-        print("Η σύνδεση στη βάση δεδομένων απέτυχε.")
+def check_if_database_exists(connection, db_name):
+    cursor = connection.cursor()
+    cursor.execute("SHOW DATABASES LIKE %s", (db_name,))
+    result = cursor.fetchone()
+    cursor.close()
+    return result is not None
 
 
 def setup_database():
-    create_database()
-    connection = open_connection()
-    if connection:
+    db_name = "transactionsdb"
+
+    connection = open_connection_without_database()
+    if connection is None:
+        print("Failed to connect to the database server.")
+        return
+
+    if not check_if_database_exists(connection, db_name):
         try:
-            # Σύνδεση στη συγκεκριμένη βάση δεδομένων
-            connection.database = "transactionsdb"
-            import_sql_file('transactions.sql')
-            close_connection(connection)
+            cursor = connection.cursor()
+            cursor.execute(f"CREATE DATABASE {db_name}")
+            connection.commit()
+            cursor.close()
+            print("Η βάση δεδομένων δημιουργήθηκε επιτυχώς.")
         except MYSQL.Error as e:
-            print("Error: " + str(e))
+            print("Eroor: " + str(e))
+        finally:
             close_connection(connection)
+
+        connection = open_connection()
+        if connection is None:
+            print("Failed to connect to the database server.")
+            return
+        import_sql_file("transactions.sql", connection)
+        close_connection(connection)
     else:
-        print("Η σύνδεση στη βάση δεδομένων απέτυχε.")
+        print("Η βάση δεδομένων υπάρχει ήδη.")
+        close_connection(connection)
 
 
 def insert_data(connection, query):
