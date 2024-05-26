@@ -33,7 +33,6 @@ CREATE TABLE `total_amount` (
 
 LOCK TABLES `total_amount` WRITE;
 /*!40000 ALTER TABLE `total_amount` DISABLE KEYS */;
-INSERT INTO `total_amount` VALUES (20);
 /*!40000 ALTER TABLE `total_amount` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -62,7 +61,6 @@ CREATE TABLE `transactions` (
 
 LOCK TABLES `transactions` WRITE;
 /*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
-INSERT INTO `transactions` VALUES (1,1,2,'test','test1',20,'2024-05-26');
 /*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -75,4 +73,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-26 19:44:22
+-- Dump completed on 2024-05-27  0:25:21
