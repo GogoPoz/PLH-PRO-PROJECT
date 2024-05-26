@@ -231,6 +231,7 @@ class Transactions:
 
 
 def main():
+    setup_database()
     connector = open_connection()
     transaction = Transactions(connector)
     transaction.load_monthly()
