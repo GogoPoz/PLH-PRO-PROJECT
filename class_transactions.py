@@ -226,7 +226,10 @@ class Transactions:
         else:
             query = f"DELETE FROM transactions WHERE descr_of_trans='{self.description}'"
             delete_or_update_data(self.connector, query)
-            self.subtract_from_total(self.amount)
+            if self.type == 1:
+                self.subtract_from_total(self.amount)
+            elif self.type == 2:
+                self.add_to_total(self.amount)
             self.connector.commit()
             print("Η συναλλαγή διαγράφηκε επιτυχώς.")
 
@@ -252,4 +255,3 @@ def main():
 
 
 main()
-
