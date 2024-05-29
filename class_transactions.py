@@ -82,11 +82,11 @@ class Transactions:
                 self.description = result["descr_of_trans"]
                 self.amount = result["amount"]
                 self.insert_date = result["insert_date"]
-                self.subtype = result["sub_type_of_trans"]
+                self.monthly = result["sub_type_of_trans"]
                 old_date = self.insert_date
 
                 today = date.today()
-                if self.subtype == 1:
+                if self.monthly == 1:
                     while (old_date.year < today.year) or (
                             old_date.year == today.year and old_date.month < today.month):
                         old_date = add_one_month(old_date)
