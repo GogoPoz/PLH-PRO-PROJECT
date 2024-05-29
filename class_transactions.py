@@ -1,5 +1,3 @@
-import datetime
-
 from db_functions import *
 from defensive_mechanisms import *
 from datetime import date
@@ -84,23 +82,28 @@ class Transactions:
                 self.description = result["descr_of_trans"]
                 self.amount = result["amount"]
                 self.insert_date = result["insert_date"]
+                self.subtype = result["sub_type_of_trans"]
                 old_date = self.insert_date
+
                 today = date.today()
-                if self.type == 1:
+                if self.subtype == 1:
                     while (old_date.year < today.year) or (
                             old_date.year == today.year and old_date.month < today.month):
                         old_date = add_one_month(old_date)
-                        self.add_to_total(self.amount)
                         delete_or_update_data(self.connector, f"UPDATE transactions SET insert_date='{old_date}' "
                                                               f"WHERE descr_of_trans='{self.description}'")
                         self.connector.commit()
-                elif self.type == 2:
-                    while (old_date.year < today.year) or (
-                            old_date.year == today.year and old_date.month < today.month):
-                        old_date = add_one_month(old_date)
-                        self.subtract_from_total(self.amount)
-                        delete_or_update_data(self.connector, f"UPDATE transactions SET insert_date='{old_date}'")
-                        self.connector.commit()
+                        if self.type == 1:
+                            self.add_to_total(self.amount)
+                        else:                       
+                            self.subtract_from_total(self.amount)
+     
+                else:
+                    if self.type == 1:
+                        self.add_to_total(self.amount)
+                    else:
+                        self.subtract_from_total(self.amount)    
+                    
 
     def create_transaction(self):
         """Η μέθοδος δημιουργεί μία καινούρια συναλλαγή και την αποθηκεύει στη βάση δεδομένων εφόσον δεν υπάρχει ήδη
@@ -117,7 +120,6 @@ class Transactions:
         elif results is None:
             self.monthly = int(input("Πρόκειται για μηνιαία συναλλαγή;"))
             self.type = int(input("H συναλλαγή σας αφορά έσοδο η έξοδο;"))
-            print(f"Τύπος συναλλαγής: {self.type}")
             self.amount = check_amount("Εισάγετε το ποσό της συναλλαγής: ")
             self.insert_date = date.today()
             query = f"""INSERT INTO transactions (type_of_trans, sub_type_of_trans, category, descr_of_trans, amount,
@@ -225,31 +227,14 @@ class Transactions:
         if results is None:
             print(f"Δεν βρέθηκε συναλλαγή με όνομα {description}. Παρακαλώ δοκιμάστε ξανά.")
             return
-        # διαγραφή συναλλαγής από την βάση δεδομένων
+        # διαγραφή συναλλαγής από τη βάση δεδομένων
         else:
             query = f"DELETE FROM transactions WHERE descr_of_trans='{self.description}'"
             delete_or_update_data(self.connector, query)
+            if self.type == 1:
+                self.subtract_from_total(self.amount)
+            elif self.type == 2:
+                self.add_to_total(self.amount)
             self.connector.commit()
             print("Η συναλλαγή διαγράφηκε επιτυχώς.")
 
-
-def main():
-    connector = open_connection()
-    transaction = Transactions(connector)
-    transaction.load_monthly()
-
-    while True:
-        choice = int(input("1-Create: \n2-Update: \n3-Delete: \n4-EXIT: \n"))
-        if choice == 1:
-            transaction.create_transaction()
-        elif choice == 2:
-            transaction.update_transaction()
-        elif choice == 3:
-            transaction.delete_transaction()
-        elif choice == 4:
-            break
-
-    close_connection(connector)
-
-
-main()
