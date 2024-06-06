@@ -123,7 +123,6 @@ class Transactions:
                                                       f"insert_date='{transaction.insert_date}' "
                                                       f"WHERE descr_of_trans='{transaction.description}'")
                 self.connector.commit()
-            print(f"amount to add: {amount_to_add}\namount to subtract: {amount_to_subtract}")
             self.add_to_total(amount_to_add)
             self.subtract_from_total(amount_to_subtract)
 
