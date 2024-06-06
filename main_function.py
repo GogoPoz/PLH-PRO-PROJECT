@@ -1,70 +1,88 @@
 from class_transactions import *
 from db_functions import *
-from charts import top_expenses_bar_chart
+from charts import *
 
 
 def main():
-    #Σύνδεση με την βάση δεδομένων
-    connection=open_connection()
-    #Δημιουργία ενός αντικειμένου transaction της κλάσης Transactions το οποίο αλληλεπιδρά με την βάση δεδομένων
-    transaction=Transactions(connection)
-    #Κλήση της load_monthly για φόρτωμα των συναλλαγών και ενημέρωση των μηνιαίων 
+    connection = open_connection()
+    transaction = Transactions(connection)
+    
+    #Κλήση της load_monthly για ενημέρωση των συναλλαγών βάσει της σημερινής ημερομηνίας
     transaction.load_monthly()
-    
+
     while True:
-        #1ο στάδιο επιλογής ενέργειας (αρχική οθόνη)
+        # 1ο στάδιο επιλογής ενέργειας (αρχική οθόνη)
         print("Τι ενέργεια επιθυμείτε;")
-        print("1)Καταχώρηση/Τροποποίηση/Διαγραφή \n2)Γραφική Αναπαράσταση \n3)Εξαγωγή δεδομένων σε αρχείο Excel")
-        action=int(input("Επιλέξτε την ενέργεια (1/2/3) ή '4' για έξοδο: "))
-        
-        if action==4:
+        print("1) Καταχώρηση/Τροποποίηση/Διαγραφή")
+        print("2) Γραφική Αναπαράσταση")
+        print("3) Εξαγωγή δεδομένων σε αρχείο Excel")
+        action = input("Επιλέξτε την ενέργεια (1/2/3) ή '4' για έξοδο: ")
+
+        if not action.isdigit() or int(action) not in [1, 2, 3, 4]:
+            print("Μη έγκυρη επιλογή, παρακαλώ προσπαθήστε ξανά.")
+            continue
+
+        action = int(action)
+
+        if action == 4:
             break
-        
-        elif action==1:
-            #2ο στάδιο: Επιλογή τύπου διαχείριση συναλλαγής
+
+        elif action == 1:
+            # 2ο στάδιο: Επιλογή τύπου διαχείρισης συναλλαγής
             while True:
-                print("1)Καταχώρηση \n2)Τροποποίηση \n3)Διαγραφή")
-                sub_action=int(input("Επιλέξτε την ενέργεια (1/2/3) ή 4 για επιστροφή: "))
-                
-                if sub_action==4:
+                print("1) Καταχώρηση\n2) Τροποποίηση\n3) Διαγραφή")
+                sub_action = input(
+                    "Επιλέξτε την ενέργεια (1/2/3) ή '4' για επιστροφή: "
+                )
+
+                if not sub_action.isdigit() or int(sub_action) not in [1, 2, 3, 4]:
+                    print("Μη έγκυρη επιλογή, παρακαλώ προσπαθήστε ξανά.")
+                    continue
+
+                sub_action = int(sub_action)
+
+                if sub_action == 4:
                     break
-               
-                
-                #Επιλογή ΚΑΤΑΧΩΡΗΣΗΣ
-                elif sub_action==1:
+
+                # Επιλογή ΚΑΤΑΧΩΡΗΣΗΣ
+                elif sub_action == 1:
                     transaction.create_transaction()
-                            
-                
-                #Επιλογή ΤΡΟΠΟΠΟΙΗΣΗΣ
-                elif sub_action==2:
+
+                # Επιλογή ΤΡΟΠΟΠΟΙΗΣΗΣ
+                elif sub_action == 2:
                     transaction.update_transaction()
-                            
-                
-                #Επιλογή ΔΙΑΓΡΑΦΗΣ            
-                elif sub_action==3:
+
+                # Επιλογή ΔΙΑΓΡΑΦΗΣ
+                elif sub_action == 3:
                     transaction.delete_transaction()
-                        
+
                 else:
-                    print("Μη έγκυρη επιλογή,παρακαλώ προσπαθήστε ξανά.")
-                    
-   
-        #Επιλογή ΓΡΑΦΙΚΗΣ ΑΝΑΠΑΡΑΣΤΑΣΗΣ            
-        elif action==2:
-            #Λήψη ημερομηνιών από τον χρήστη
-            start_date=input("Εισάγετε την ημερομηνία έναρξης σε μορφή YYYY-MM: ")
-            end_date=input("Εισάγετε την ημερομηνία λήξης σε μορφή YYYY-MM: ")
+                    print("Μη έγκυρη επιλογή, παρακαλώ προσπαθήστε ξανά.")
+
+        elif action == 2:
+            # Λήψη ημερομηνιών από τον χρήστη
+            start_date = input("Εισάγετε την ημερομηνία έναρξης σε μορφή YYYY-MM: ")
+            end_date = input("Εισάγετε την ημερομηνία λήξης σε μορφή YYYY-MM: ")
+
+            print("1) 3 Κορυφαίες Κατηγορίες Εξόδων (Bar Chart)\n2) Ποσοστά Εξόδων ανά Κατηγορία (Pie Chart)\n3) Αναλυτική Συναλλαγών(Linear Chart)")
             
-            #Εμφάνιση του ραβδογράμματος στο επιλεγμένο διάστημα          
-            top_expenses_bar_chart(start_date, end_date)           
-        
-        else:
-            print("Μη έγκυρη επιλογή, παρακαλώ προσπαθήστε ξανά.")             
-                
-    """   #Επιλογή EXCEL      
-        elif action==3:  """
-    
-    
-    close_connection(connection)  
+            chart_action = input("Επιλέξτε τον τύπο γραφήματος (1/2/3): ")
+
+            if chart_action == "1":
+                top_expenses_bar_chart(start_date, end_date)
+            elif chart_action == "2":
+                category_expense_pie_chart(start_date, end_date)
+            elif chart_action == "3":
+                trans_analysis_line_chart(start_date, end_date)
+            else:
+                print("Μη έγκυρη επιλογή.")
+
+        elif action == 3:
+            # Υλοποίηση για εξαγωγή δεδομένων
+            print("Η λειτουργία αυτή δεν έχει υλοποιηθεί ακόμη.")
+
+    close_connection(connection)
+
 
 if __name__ == "__main__":
     main()
