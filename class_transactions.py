@@ -90,6 +90,9 @@ class Transactions:
                 transaction.insert_date = result["insert_date"]
                 monthly_transactions.append(transaction)
 
+            amount_to_add = 0
+            amount_to_subtract = 0
+
             # ενημέρωση ημερομηνίας και συνολικού ποσού
             for transaction in monthly_transactions:
                 old_date = transaction.insert_date
@@ -98,20 +101,31 @@ class Transactions:
                 if transaction.type == 1:
                     while (old_date.year < today.year) or (
                             old_date.year == today.year and old_date.month < today.month):
-                        old_date = add_one_month(old_date)
-                        transaction.add_to_total(transaction.amount)
-                        transaction.insert_date = old_date
-                #περίπτωση που η συναλλαγή αφορά έξοδο
+                        # περίπτωση που είναι η ημέρα συναλλαγής δεν έχει φτάσει ακόμα στον τρέχων μήνα
+                        if old_date.month == today.month - 1 and old_date.day > today.day:
+                            break
+                        else:
+                            old_date = add_one_month(old_date)
+                            amount_to_add += transaction.amount
+                            transaction.insert_date = old_date
+                # περίπτωση που η συναλλαγή αφορά έξοδο
                 elif transaction.type == 2:
                     while (old_date.year < today.year) or (
                             old_date.year == today.year and old_date.month < today.month):
-                        old_date = add_one_month(old_date)
-                        transaction.subtract_from_total(transaction.amount)
-                        transaction.insert_date = old_date
+                        # περίπτωση που είναι η ημέρα συναλλαγής δεν έχει φτάσει ακόμα στον τρέχων μήνα
+                        if old_date.month == today.month - 1 and old_date.day > today.day:
+                            break
+                        else:
+                            old_date = add_one_month(old_date)
+                            amount_to_subtract += transaction.amount
+                            transaction.insert_date = old_date
                 delete_or_update_data(self.connector, f"UPDATE transactions SET "
                                                       f"insert_date='{transaction.insert_date}' "
                                                       f"WHERE descr_of_trans='{transaction.description}'")
                 self.connector.commit()
+            print(f"amount to add: {amount_to_add}\namount to subtract: {amount_to_subtract}")
+            self.add_to_total(amount_to_add)
+            self.subtract_from_total(amount_to_subtract)
 
     def create_transaction(self):
         """Η μέθοδος δημιουργεί μία καινούρια συναλλαγή και την αποθηκεύει στη βάση δεδομένων εφόσον δεν υπάρχει ήδη
