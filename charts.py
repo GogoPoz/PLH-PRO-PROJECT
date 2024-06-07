@@ -1,6 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from sqlalchemy import create_engine
+from datetime import datetime
+import matplotlib.dates as mdates
 from class_transactions import *
 
 def top_expenses_bar_chart(start_date, end_date):
@@ -8,6 +10,7 @@ def top_expenses_bar_chart(start_date, end_date):
     Δημιουργεί κατακόρυφο ραβδόγραμμα για τις πρώτες 3 κατηγορίες εξόδων με το μεγαλύτερο ποσό
     για το διάστημα που ορίζεται από τον χρήστη.
     """
+    
     # Σύνδεση στη βάση δεδομένων
     engine = create_engine('mysql+mysqlconnector://root:1234qazwsx4321@localhost/transactionsdb')
 
@@ -39,6 +42,7 @@ def top_expenses_bar_chart(start_date, end_date):
         plt.ylabel('Ποσό')
         plt.title(f'3 Κορυφαίες Κατηγορίες Εξόδων από {start_date} έως {end_date}')
         plt.tight_layout()
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y')) # Aλλάζει τις ημερομηνίες από την μορφή που βρίσκονται στην sql στην μορφή dd-mm-yyyy
         plt.show()
     else:
         print("Δεν βρέθηκαν δεδομένα για το συγκεκριμένο χρονικό διάστημα.")
@@ -49,6 +53,8 @@ def category_expense_pie_chart(start_date, end_date):
     Δημιουργεί ένα pie chart που αναπαριστά τα ποσοστά από όλες τις κατηγορίες
     εξόδων στο διάστημα που ορίζεται από τον χρήστη.
     """
+
+    
     # Σύνδεση στη βάση δεδομένων
     engine = create_engine('mysql+mysqlconnector://root:1234qazwsx4321@localhost/transactionsdb')
 
@@ -76,7 +82,7 @@ def category_expense_pie_chart(start_date, end_date):
         plt.figure(figsize=(8, 8))
         plt.pie(df['total_expense'], labels=df['category'], autopct='%1.1f%%', startangle=140)
         plt.title(f'Ποσοστά Εξόδων ανά Κατηγορία από {start_date} έως {end_date}')
-        plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        plt.axis('equal')  # Σιγουρεύει πως το pie chart θα βγει σε μορφή κύκλου
         plt.tight_layout()
         plt.show()
     else:
@@ -89,6 +95,7 @@ def trans_analysis_line_chart(start_date, end_date):
     Δημιουργεί ένα γραμμικό διάγραμμα που αναπαριστά το ποσό κάθε εσόδου και εξόδου
     για το διάστημα που ορίζεται από τον χρήστη.
     """
+    
     # Σύνδεση στη βάση δεδομένων
     engine = create_engine('mysql+mysqlconnector://root:1234qazwsx4321@localhost/transactionsdb')
 
@@ -122,9 +129,11 @@ def trans_analysis_line_chart(start_date, end_date):
         plt.xlabel('Ημερομηνία')
         plt.ylabel('Ποσό')
         plt.title(f'Ποσά Εσόδων και Εξόδων από {start_date} έως {end_date}')
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y')) 
         plt.xticks(rotation=45)
         plt.legend()
         plt.tight_layout()
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y')) # Aλλάζει τις ημερομηνίες από την μορφή που βρίσκονται στην sql στην μορφή dd-mm-yyyy
         plt.show()
     else:
         print("Δεν βρέθηκαν δεδομένα για το συγκεκριμένο χρονικό διάστημα.")

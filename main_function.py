@@ -1,7 +1,7 @@
 from class_transactions import *
 from db_functions import *
 from charts import *
-
+from datetime import datetime
 
 def main():
     connection = open_connection()
@@ -61,19 +61,26 @@ def main():
 
         elif action == 2:
             # Λήψη ημερομηνιών από τον χρήστη
-            start_date = input("Εισάγετε την ημερομηνία έναρξης σε μορφή YYYY-MM: ")
-            end_date = input("Εισάγετε την ημερομηνία λήξης σε μορφή YYYY-MM: ")
+            start_date = input("Εισάγετε την ημερομηνία έναρξης σε μορφή dd-mm-yyyy: ")
+            end_date = input("Εισάγετε την ημερομηνία λήξης σε μορφή dd-mm-yyyy: ")
+            
+            try:
+                start_date_converted = datetime.strptime(start_date, '%d-%m-%Y').strftime('%Y-%m-%d')
+                end_date_converted = datetime.strptime(end_date, '%d-%m-%Y').strftime('%Y-%m-%d')
+            except ValueError:
+                print("Μη έγκυρη ημερομηνία, παρακαλώ προσπαθήστε ξανά.")
+                continue
 
-            print("1) 3 Κορυφαίες Κατηγορίες Εξόδων (Bar Chart)\n2) Ποσοστά Εξόδων ανά Κατηγορία (Pie Chart)\n3) Αναλυτική Συναλλαγών(Linear Chart)")
+            print("1) 3 Κορυφαίες 2Κατηγορίες Εξόδων (Bar Chart)\n2) Ποσοστά Εξόδων ανά Κατηγορία (Pie Chart)\n3) Αναλυτική Συναλλαγών(Linear Chart)")
             
             chart_action = input("Επιλέξτε τον τύπο γραφήματος (1/2/3): ")
 
             if chart_action == "1":
-                top_expenses_bar_chart(start_date, end_date)
+                top_expenses_bar_chart(start_date_converted, end_date_converted)
             elif chart_action == "2":
-                category_expense_pie_chart(start_date, end_date)
+                category_expense_pie_chart(start_date_converted, end_date_converted)
             elif chart_action == "3":
-                trans_analysis_line_chart(start_date, end_date)
+                trans_analysis_line_chart(start_date_converted, end_date_converted)
             else:
                 print("Μη έγκυρη επιλογή.")
 
