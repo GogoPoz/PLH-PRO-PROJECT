@@ -1,6 +1,7 @@
 from class_transactions import *
 from db_functions import *
 from charts import top_expenses_bar_chart
+from Class_Project import *
 
 
 def main():
@@ -11,7 +12,6 @@ def main():
     transaction=Transactions(connection)
     #Κλήση της load_monthly για φόρτωμα των συναλλαγών και ενημέρωση των μηνιαίων 
     transaction.load_monthly()
-    
     while True:
         #1ο στάδιο επιλογής ενέργειας (αρχική οθόνη)
         print("Τι ενέργεια επιθυμείτε;")

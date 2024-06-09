@@ -260,24 +260,7 @@ class Transactions:
             print("Η συναλλαγή διαγράφηκε επιτυχώς.")
 
 
-def main():
-    setup_database()
-    connector = open_connection()
-    transaction = Transactions(connector)
-    transaction.load_monthly()
-
-    while True:
-        choice = int(input("1-Create: \n2-Update: \n3-Delete: \n4-EXIT: \n"))
-        if choice == 1:
-            transaction.create_transaction()
-        elif choice == 2:
-            transaction.update_transaction()
-        elif choice == 3:
-            transaction.delete_transaction()
-        elif choice == 4:
-            break
-
-    close_connection(connector)
 
 
-main()
+
+
