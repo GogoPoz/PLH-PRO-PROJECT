@@ -4,7 +4,7 @@ from charts import top_expenses_bar_chart
 from Class_Project import *
 
 
-def main():
+def main(action):
     setup_database()
     #Σύνδεση με την βάση δεδομένων
     connection=open_connection()
@@ -17,7 +17,7 @@ def main():
         print("Τι ενέργεια επιθυμείτε;")
         print("1)Καταχώρηση/Τροποποίηση/Διαγραφή \n2)Γραφική Αναπαράσταση \n3)Εξαγωγή δεδομένων σε αρχείο Excel")
         action=int(input("Επιλέξτε την ενέργεια (1/2/3) ή '4' για έξοδο: "))
-        
+    
         if action==4:
             break
         
