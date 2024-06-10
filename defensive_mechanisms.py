@@ -54,3 +54,13 @@ def add_one_month(orig_date):
 
     return orig_date.replace(year=new_year, month=new_month, day=new_day)
 
+
+# Ορισμός της συνάρτησης για έλεγχο της ημερομηνίας κατά την εισαγωγή της
+def date_valid(date_str):
+    try:
+        datetime.strptime(date_str, "%d-%m-%Y")  # Ελέγχεται αν η συμβολοσειρά ταιριάζει με την υποδεικνυόμενη μορφή
+        return True
+    except ValueError:
+        return False
+
+

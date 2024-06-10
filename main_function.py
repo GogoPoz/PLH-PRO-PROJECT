@@ -1,16 +1,8 @@
 from class_transactions import *
 from db_functions import *
 from datetime import datetime
+from defensive_mechanisms import date_valid
 from charts import *
-
-
-# Ορισμός της συνάρτησης για έλεγχο της ημερομηνίας κατά την εισαγωγή της
-def date_valid(date_str):
-    try:
-        datetime.strptime(date_str, "%d-%m-%Y")  # Ελέγχεται αν η συμβολοσειρά ταιριάζει με την υποδεικνυόμενη μορφή
-        return True
-    except ValueError:
-        return False
 
 
 def main():
