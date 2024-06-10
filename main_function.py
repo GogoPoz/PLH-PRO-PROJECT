@@ -1,7 +1,7 @@
 from class_transactions import *
 from db_functions import *
-from datetime import datetime
 from charts import *
+from excel_projection import export_to_excel
 
 
 # Ορισμός της συνάρτησης για έλεγχο της ημερομηνίας κατά την εισαγωγή της
@@ -113,8 +113,18 @@ def main():
                     category_stem_plot(start_date, end_date, category)  # Αναπαράσταση της επιλεγμένης κατηγορίας
 
         elif action == 3:
-            # Υλοποίηση για εξαγωγή δεδομένων
-            print("Η λειτουργία αυτή δεν έχει υλοποιηθεί ακόμη.")
+            #Επιλογή αναπαράστασης δεδομένων σε αρχείο excel
+            while True:
+                year = input("Εισάγετε το έτος (π.χ. 2024): ")        
+                month = input("Εισάγετε τον μήνα σε μορφή mm (π.χ. 01 για Ιανουάριο): ")
+
+                if date_valid(f"01-{month}-{year}"):
+                    break
+                else:
+                    print("Μη έγκυρο έτος ή μήνας. Παρακαλώ δοκιμάστε ξανά.")
+                    
+            export_to_excel(connection, year, month)
+
 
     close_connection(connection)  # Διακοπή σύνδεσης με την βάση
 
