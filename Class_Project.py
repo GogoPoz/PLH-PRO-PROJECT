@@ -3,6 +3,7 @@ from tkinter import *
 from PIL import Image, ImageTk
 from class_transactions import *
 from main_function import *
+from db_functions import *
 
 
 
@@ -64,10 +65,7 @@ class Project(CTk):
         self.label4= CTkLabel(self, text=text4, font=("Arial", 30))
         self.entry2= CTkEntry(self, width=1, font=("Arial", 30))
         self.entry2.insert(0, "Πληκτρολογήστε εδώ...")
-        
-        self.backend_output = StringVar()
-        self.backend_output.set("...")
-        self.label8=CTkLabel(self,textvariable=self.backend_output,font=("Arial", 30))
+        self.label8=CTkLabel(self,text="...",font=("Arial", 30))
         
         # Αρχικά απενεργοποίηση του κουμπιού "Επόμενο" στη σελίδα 2
         self.btn6c.configure(state=DISABLED)
@@ -85,6 +83,7 @@ class Project(CTk):
         self.btn_radio3= CTkButton(self, text="Έσοδα", font=("Arial", 30), command=lambda: self.set_radio_var(self.radio_var2, 1))
         self.btn_radio4= CTkButton(self, text="Έξοδα", font=("Arial", 30), command=lambda: self.set_radio_var(self.radio_var2, 2))
         self.btn6d.configure(state=DISABLED)
+        self.btn9=CTkButton(self,text="OK", font=("Arial", 30),command=self.call_transactions)
 
         for i in range(0,4):
             self.grid_columnconfigure(i,weight=1)
@@ -102,8 +101,6 @@ class Project(CTk):
         self.btn_radio11= CTkButton(self, text="Όνομα",compound="top", font=("Arial", 30), command=lambda: self.update_radio_buttons3_and_var4(2))
         self.btn_radio12= CTkButton(self, text="Κατηγορία",compound="top", font=("Arial", 30),command=lambda:  self.update_radio_buttons3_and_var4(3))
         self.btn_radio13= CTkButton(self, text="Προσθήκη/ Αφαίρεση",compound="top", font=("Arial", 30),command=lambda:  self.update_radio_buttons3_and_var4(4))
-
-
 
 
 
@@ -160,9 +157,6 @@ class Project(CTk):
             self.btn6c.grid(row=5, column=3, padx=10, pady=10, sticky='se')
         self.label8.grid(row=0, column=0, columnspan=4, sticky='ew')
 
-        self.transaction.category=self.entry1.get()
-        self.transaction.description=self.entry2.get()
-
 
         self.entry1.bind("<FocusIn>", self.on_entry_click)
         self.entry1.bind("<FocusOut>", self.on_focus_out)
@@ -206,6 +200,7 @@ class Project(CTk):
         self.btn_radio4.grid(row=3, column=3,columnspan=1, sticky='w')
         self.btn5.grid(row=4, column=0, padx=10, pady=10, sticky='sw')
         self.btn6d.grid(row=4, column=3, padx=10, pady=10, sticky='se')
+        self.btn9.grid(row=4, column=3, padx=10, pady=10, sticky='sw')
 
     def show_page4(self):
         self.clear_page()
@@ -219,11 +214,12 @@ class Project(CTk):
         self.transaction.amount = amount  # Αποθήκευση του ποσού στη μεταβλητή self.transaction.amount
         print(f"ποσό: {self.transaction.amount}")
 
-
     def epomeno1(self):
         self.show_page1()
 
+
     def epomeno2(self):
+        
         page=self.radio_var3.get()
         if page==1:
             self.show_page2()
@@ -231,14 +227,15 @@ class Project(CTk):
             self.show_page2b()
         elif page==4:
             self.show_page4()
+
         
-        if page==1:
+        """if page==1:
             self.transaction.create_transaction()
         elif page==2:
             self.transaction.update_transaction()
         elif page==3:
             self.transaction.delete_transaction()
-        """elif page==4:
+        elif page==4:
             action=2
         elif page==5:
             action=3"""
@@ -260,6 +257,7 @@ class Project(CTk):
             self.money_input()
         except Exception as e:
             print(f"Error in epomeno3: {e}")
+            
 
           
     def set_radio_var(self, var, value):
@@ -394,9 +392,19 @@ class Project(CTk):
             else:
                 self.btn6c.configure(state=DISABLED)
 
+    def call_transactions(self):
+        category=self.transaction.category
+        description=self.transaction.description
+        monthly=self.transaction.monthly
+        type=self.transaction.type
+        amount=self.transaction.amount
+        self.transaction.create_transaction(category,description,monthly,type,amount)
+
     def run(self):
         self.mainloop()
 
+
+ 
 if __name__ == "__main__":
     project = Project()
     project.run()

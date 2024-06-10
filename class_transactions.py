@@ -3,6 +3,7 @@ from defensive_mechanisms import *
 from datetime import date
 
 
+
 class Transactions:
     """
     type: integer θα παίρνει τιμές 1 και 2. 1 = έσοδο, 2 = έξοδο
@@ -126,11 +127,18 @@ class Transactions:
             self.add_to_total(amount_to_add)
             self.subtract_from_total(amount_to_subtract)
 
-    def create_transaction(self):
+    def create_transaction(self,category,description,monthly,type,amount):
+        self.category=category
+        self.description=description
+        self.monthly=monthly
+        self.type=type
+        self.amount=float(amount)
         """Η μέθοδος δημιουργεί μία καινούρια συναλλαγή και την αποθηκεύει στη βάση δεδομένων εφόσον δεν υπάρχει ήδη
         συναλλαγή με το ίδιο όνομα"""
-        self.category = check_description("Εισάγετε την κατηγορία της συναλλαγής που θέλετε να καταχωρήσετε: ")
-        self.description = check_description("Εισάγετε το όνομα της συναλλαγής που θέλετε να καταχωρήσετε: ")
+
+        """self.category = check_description("Εισάγετε την κατηγορία της συναλλαγής που θέλετε να καταχωρήσετε: ")
+        self.description = check_description("Εισάγετε το όνομα της συναλλαγής που θέλετε να καταχωρήσετε: ")"""
+
         # έλεγχος αν υπάρχει συναλλαγή με ίδιο όνομα
         results = self.load_transaction(self.description)
         # περίπτωση που υπάρχει ήδη πρέπει να επιλεχθεί άλλο όνομα
@@ -139,9 +147,9 @@ class Transactions:
             return
         # αρχικοποίηση της συναλλαγής και αποθήκευση
         elif results is None:
-            self.monthly = int(input("Πρόκειται για μηνιαία συναλλαγή;"))
+            """self.monthly = int(input("Πρόκειται για μηνιαία συναλλαγή;"))
             self.type = int(input("H συναλλαγή σας αφορά έσοδο η έξοδο;"))
-            self.amount = check_amount("Εισάγετε το ποσό της συναλλαγής: ")
+            self.amount = check_amount("Εισάγετε το ποσό της συναλλαγής: ")"""
             self.insert_date = date.today()
             query = f"""INSERT INTO transactions (type_of_trans, sub_type_of_trans, category, descr_of_trans, amount,
                         insert_date)
