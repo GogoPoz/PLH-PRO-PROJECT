@@ -4,6 +4,7 @@ from datetime import date
 import calendar
 
 
+
 class Transactions:
     """
     type: integer θα παίρνει τιμές 1 και 2. 1 = έσοδο, 2 = έξοδο
@@ -154,6 +155,7 @@ class Transactions:
         self.amount = float(amount)
         """self.category = check_description("Εισάγετε την κατηγορία της συναλλαγής που θέλετε να καταχωρήσετε: ")
         self.description = check_description("Εισάγετε το όνομα της συναλλαγής που θέλετε να καταχωρήσετε: ")"""
+
         # έλεγχος αν υπάρχει συναλλαγή με ίδιο όνομα
         results = self.load_transaction(self.description)
         # περίπτωση που υπάρχει ήδη πρέπει να επιλεχθεί άλλο όνομα
@@ -162,9 +164,9 @@ class Transactions:
             return
         # αρχικοποίηση της συναλλαγής και αποθήκευση
         elif results is None:
-            self.monthly = int(input("Πρόκειται για μηνιαία συναλλαγή;"))
+            """self.monthly = int(input("Πρόκειται για μηνιαία συναλλαγή;"))
             self.type = int(input("H συναλλαγή σας αφορά έσοδο η έξοδο;"))
-            self.amount = check_amount("Εισάγετε το ποσό της συναλλαγής: ")
+            self.amount = check_amount("Εισάγετε το ποσό της συναλλαγής: ")"""
             self.insert_date = date.today()
             self.original_date = date.today()
         '''self.category = category
@@ -338,3 +340,4 @@ class Transactions:
         # Περίπτωση που δεν υπάρχει ποσό στο total_amount
         else:
             print("Δεν βρέθηκαν χρήματα στο συνολικό ποσό.")
+
