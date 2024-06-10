@@ -3,10 +3,8 @@ import calendar
 
 
 def check_description(message=None):
-    """
-    H συνάρτηση ελέγχει αν η ονομασία του εσόδου είναι έγκυρη(να μην είναι κενό string και να περιέχει μόνο γράμματα ή
-    αριθμούς - όχι ειδικούς χαρακτήρες)
-    """
+    """ H συνάρτηση ελέγχει αν η ονομασία της συναλλαγής είναι έγκυρη(να μην είναι κενό string και να περιέχει μόνο
+    γράμματα ή αριθμούς - όχι ειδικούς χαρακτήρες)"""
     while True:
         # έλεγχος για σκέτο enter η input που περιέχει μόνο κενά
         description_input = input(message)
@@ -21,11 +19,9 @@ def check_description(message=None):
 
 
 def check_amount(message=None):
-    """
-    Η συνάρτηση παίρνει ένα ποσό από το input, ελέγχει αν αυτό το ποσό είναι int η float και αν είναι το επιστρέφει
+    """ Η συνάρτηση παίρνει ένα ποσό από το input, ελέγχει αν αυτό το ποσό είναι int η float και αν είναι το επιστρέφει
     Το όρισμα message είναι None ώστε όταν καλείται η check_amount να παίρνει όρισμα το εκάστοτε μήνυμα που
-    θέλουμε να εμφανίσουμε
-    """
+    θέλουμε να εμφανίσουμε """
     while True:
         amount_input = input(message)
         # Έλεγχος αν το ποσό που εισάχθηκε είναι int η float μεγαλύτερα του μηδενός
@@ -44,13 +40,16 @@ def check_amount(message=None):
 
 def add_one_month(orig_date):
     new_year = orig_date.year
+    # προσθέτει έναν μήνα στην αρχική ημερομηνία
     new_month = orig_date.month + 1
+    # περίπτωση που αυτός ο μήνας είναι ο Δεκέμβριος ώστε να αλλάξει η χρονιά
     if new_month > 12:
         new_year += 1
         new_month -= 12
 
+    # αποθηκεύει την τελευταία ημέρα του καινούριου μήνα ώστε να γίνει η κατάλληλη αλλαγή (περίπτωση που η αρχική ημέρα
+    # βρίσκεται στο τέλος του μήνα πχ 31)
     last_day_of_month = calendar.monthrange(new_year, new_month)[1]
     new_day = min(orig_date.day, last_day_of_month)
 
     return orig_date.replace(year=new_year, month=new_month, day=new_day)
-

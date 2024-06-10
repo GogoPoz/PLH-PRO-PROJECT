@@ -1,6 +1,7 @@
 from db_functions import *
 from defensive_mechanisms import *
 from datetime import date
+import calendar
 
 
 class Transactions:
@@ -21,10 +22,8 @@ class Transactions:
         self.amount = None
         self.insert_date = None
         self.total = None
+        self.original_date = None
         self.connector = connector
-
-    def __str__(self):
-        return f"Esodo/eksodo: {self.type}, miniaio: {self.monthly},katigoria: {self.category},onomasia: {self.description},poso: {self.amount},imerominia: {self.insert_date})"
 
     def load_transaction(self, description):
         """H μέθοδος ψάχνει συναλλαγή με το συγκεκριμένο description(όνομα) και την επιστρέφει αν αυτή υπάρχει"""
@@ -46,12 +45,14 @@ class Transactions:
     def add_to_total(self, amount):
         """Η μέθοδος προσθέτει στα συνολικά χρήματα το ποσό που παίρνει σαν όρισμα"""
         results = query_fetch_all(self.connector, "SELECT * FROM total_amount")
+        # Περίπτωση που υπάρχει ήδη ποσό μέσα στο total_amount
         if results:
             data = results[0]
             self.total = data["total"]
             self.total += amount
             delete_or_update_data(self.connector, f"UPDATE total_amount SET total={self.total}")
             self.connector.commit()
+        # Περίπτωση που στο total_amount δεν υπάρχει ήδη κάποιο ποσό
         else:
             self.total = amount
             query = f"INSERT INTO total_amount (total) VALUES ({self.total})"
@@ -61,12 +62,14 @@ class Transactions:
     def subtract_from_total(self, amount):
         """Η μέθοδος αφαιρεί από τα συνολικά χρήματα το ποσό που παίρνει σαν όρισμα"""
         results = query_fetch_all(self.connector, "SELECT * FROM total_amount")
+        # Περίπτωση που υπάρχει ήδη ποσό μέσα στο total_amount
         if results:
             data = results[0]
             self.total = data["total"]
             self.total -= amount
             delete_or_update_data(self.connector, f"UPDATE total_amount SET total={self.total}")
             self.connector.commit()
+        # Περίπτωση που στο total_amount δεν υπάρχει ήδη κάποιο ποσό
         else:
             self.total = -amount
             query = f"INSERT INTO total_amount (total) VALUES ({self.total})"
@@ -81,56 +84,76 @@ class Transactions:
         results = query_fetch_all(self.connector, "SELECT * FROM transactions WHERE sub_type_of_trans=1")
         monthly_transactions = []
         if results:
-            # αρχικοποίηση των μηνιαίων συναλλαγών και αποθήκευση στην λίστα
+            # αρχικοποίηση των μηνιαίων συναλλαγών και αποθήκευση στη λίστα
             for result in results:
                 transaction = Transactions(self.connector)
                 transaction.type = result["type_of_trans"]
                 transaction.description = result["descr_of_trans"]
                 transaction.amount = result["amount"]
                 transaction.insert_date = result["insert_date"]
+                transaction.original_date = result["original_date"]
                 monthly_transactions.append(transaction)
 
-            amount_to_add = 0
-            amount_to_subtract = 0
+        # Μεταβλητές που κρατάν όλα τα μηνιαία ποσά ώστε στο τέλος να προστεθούν/ αφαιρεθούν από το total_amount
+        amount_to_add = 0
+        amount_to_subtract = 0
 
-            # ενημέρωση ημερομηνίας και συνολικού ποσού
-            for transaction in monthly_transactions:
-                old_date = transaction.insert_date
-                today = date.today()
-                # περίπτωση που η συναλλαγή αφορά έσοδο
-                if transaction.type == 1:
-                    while (old_date.year < today.year) or (
-                            old_date.year == today.year and old_date.month < today.month):
-                        # περίπτωση που είναι η ημέρα συναλλαγής δεν έχει φτάσει ακόμα στον τρέχων μήνα
-                        if old_date.month == today.month - 1 and old_date.day > today.day:
-                            break
-                        else:
-                            old_date = add_one_month(old_date)
-                            amount_to_add += transaction.amount
-                            transaction.insert_date = old_date
-                # περίπτωση που η συναλλαγή αφορά έξοδο
-                elif transaction.type == 2:
-                    while (old_date.year < today.year) or (
-                            old_date.year == today.year and old_date.month < today.month):
-                        # περίπτωση που είναι η ημέρα συναλλαγής δεν έχει φτάσει ακόμα στον τρέχων μήνα
-                        if old_date.month == today.month - 1 and old_date.day > today.day:
-                            break
-                        else:
-                            old_date = add_one_month(old_date)
-                            amount_to_subtract += transaction.amount
-                            transaction.insert_date = old_date
-                delete_or_update_data(self.connector, f"UPDATE transactions SET "
-                                                      f"insert_date='{transaction.insert_date}' "
-                                                      f"WHERE descr_of_trans='{transaction.description}'")
-                self.connector.commit()
-            self.add_to_total(amount_to_add)
-            self.subtract_from_total(amount_to_subtract)
+        # ενημέρωση ημερομηνίας και συνολικού ποσού
+        for transaction in monthly_transactions:
+            old_date = transaction.insert_date
+            today = date.today()
+            # περίπτωση που η συναλλαγή αφορά έσοδο
+            if transaction.type == 1:
+                while (old_date.year < today.year) or (
+                        old_date.year == today.year and old_date.month < today.month):
+                    # περίπτωση που είναι η ημέρα συναλλαγής δεν έχει φτάσει ακόμα στον τρέχων μήνα
+                    if old_date.month == today.month - 1 and old_date.day > today.day:
+                        break
+                    else:
+                        old_date = add_one_month(old_date)
+                        amount_to_add += transaction.amount
+                        transaction.insert_date = old_date
+                        print(transaction.insert_date)
+            # περίπτωση που η συναλλαγή αφορά έξοδο
+            elif transaction.type == 2:
+                while (old_date.year < today.year) or (
+                        old_date.year == today.year and old_date.month < today.month):
+                    # περίπτωση που είναι η ημέρα συναλλαγής δεν έχει φτάσει ακόμα στον τρέχων μήνα
+                    if old_date.month == today.month - 1 and old_date.day > today.day:
+                        break
+                    else:
+                        old_date = add_one_month(old_date)
+                        amount_to_subtract += transaction.amount
+                        transaction.insert_date = old_date
 
-    def create_transaction(self):
+            # ενημέρωση ημέρας σε περίπτωση που η ημερομηνίας της συναλλαγής βρίσκεται στο τέλος του μήνα
+            original_day = transaction.original_date.day
+            last_day_of_current_month = calendar.monthrange(transaction.insert_date.year, transaction.insert_date.month)[1]
+            """Περίπτωση που η ημέρα της αρχικής ημερομηνίας είναι μεγαλύτερη απο την τελευταία μέρα του 
+            συγκεκριμένου μήνα, αποθηκεύεται η τελευταία μέρα του συγκεκριμένου μήνα στην insert_date"""
+            if original_day > last_day_of_current_month:
+                transaction.insert_date = transaction.insert_date.replace(day=last_day_of_current_month)
+            # αλλιώς αν είναι μικρότερη η ίση αποθηκεύεται η μέρα της αρχικής ημερομηνίας στην insert_date
+            elif original_day <= last_day_of_current_month:
+                transaction.insert_date = transaction.insert_date.replace(day=original_day)
+            delete_or_update_data(self.connector, f"UPDATE transactions SET "
+                                              f"insert_date='{transaction.insert_date}' "
+                                              f"WHERE descr_of_trans='{transaction.description}'")
+
+            self.connector.commit()
+        self.add_to_total(amount_to_add)
+        self.subtract_from_total(amount_to_subtract)
+
+    def create_transaction(self, category, description, monthly, type, amount):
         """Η μέθοδος δημιουργεί μία καινούρια συναλλαγή και την αποθηκεύει στη βάση δεδομένων εφόσον δεν υπάρχει ήδη
-        συναλλαγή με το ίδιο όνομα"""
-        self.category = check_description("Εισάγετε την κατηγορία της συναλλαγής που θέλετε να καταχωρήσετε: ")
-        self.description = check_description("Εισάγετε το όνομα της συναλλαγής που θέλετε να καταχωρήσετε: ")
+                συναλλαγή με το ίδιο όνομα"""
+        self.category = category
+        self.description = description
+        self.monthly = monthly
+        self.type = type
+        self.amount = float(amount)
+        """self.category = check_description("Εισάγετε την κατηγορία της συναλλαγής που θέλετε να καταχωρήσετε: ")
+        self.description = check_description("Εισάγετε το όνομα της συναλλαγής που θέλετε να καταχωρήσετε: ")"""
         # έλεγχος αν υπάρχει συναλλαγή με ίδιο όνομα
         results = self.load_transaction(self.description)
         # περίπτωση που υπάρχει ήδη πρέπει να επιλεχθεί άλλο όνομα
@@ -143,19 +166,28 @@ class Transactions:
             self.type = int(input("H συναλλαγή σας αφορά έσοδο η έξοδο;"))
             self.amount = check_amount("Εισάγετε το ποσό της συναλλαγής: ")
             self.insert_date = date.today()
-            query = f"""INSERT INTO transactions (type_of_trans, sub_type_of_trans, category, descr_of_trans, amount,
-                        insert_date)
-                        VALUES ({self.type}, {self.monthly}, '{self.category}', '{self.description}', {self.amount}, 
-                        '{self.insert_date}')"""
-            insert_data(self.connector, query)
-            self.connector.commit()
-            # αν είναι έσοδο προσθέτει το ποσό στα συνολικά χρήματα
-            if self.type == 1:
-                self.add_to_total(self.amount)
-            # αν είναι έξοδο αφαιρεί το ποσό από τα συνολικά χρήματα
-            elif self.type == 2:
-                self.subtract_from_total(self.amount)
-            print("Η συναλλαγή σας αποθηκεύτηκε επιτυχώς.")
+            self.original_date = date.today()
+        '''self.category = category
+        self.description = description
+        self.monthly = monthly
+        self.type = type
+        self.amount = float(amount)
+        self.original_date = date.today()
+        self.insert_date = date.today()'''
+        query = f"""INSERT INTO transactions (type_of_trans, sub_type_of_trans, category, descr_of_trans, amount,
+                                    insert_date, original_date)
+                                    VALUES ({self.type}, {self.monthly}, '{self.category}', '{self.description}', {self.amount}, 
+                                    '{self.insert_date}', '{self.original_date}')"""
+        insert_data(self.connector, query)
+        self.connector.commit()
+
+        # αν είναι έσοδο προσθέτει το ποσό στα συνολικά χρήματα
+        if self.type == 1:
+            self.add_to_total(self.amount)
+        # αν είναι έξοδο αφαιρεί το ποσό από τα συνολικά χρήματα
+        elif self.type == 2:
+            self.subtract_from_total(self.amount)
+        print("Η συναλλαγή σας αποθηκεύτηκε επιτυχώς.")
 
     def update_transaction(self):
         """H μέθοδος ψάχνει συναλλαγή με το συγκεκριμένο description(όνομα) και την τροποποιεί αν αυτή υπάρχει"""
@@ -241,7 +273,7 @@ class Transactions:
                     break
 
     def delete_transaction(self):
-        """H μέθοδος ψάχνει συναλλαγή με το συγκεκριμένο description(όνομα) και την διαγράφει αν αυτή υπάρχει"""
+        """H μέθοδος ψάχνει συναλλαγή με το συγκεκριμένο description(όνομα) και τη διαγράφει αν αυτή υπάρχει"""
         description = check_description("Εισάγετε το όνομα της συναλλαγής που θέλετε να διαγράψετε: ")
         results = self.load_transaction(description)
         # περίπτωση που δεν υπάρχει συναλλαγή με αυτό το όνομα
@@ -259,25 +291,50 @@ class Transactions:
             self.connector.commit()
             print("Η συναλλαγή διαγράφηκε επιτυχώς.")
 
+    def print_transactions(self):
+        """Η μέθοδος τραβάει όλες τις συναλλαγές από τη βάση δεδομένων και τις τυπώνει"""
+        results = query_fetch_all(self.connector, "SELECT * FROM transactions")
+        print_transactions = []
 
-def main():
-    setup_database()
-    connector = open_connection()
-    transaction = Transactions(connector)
-    transaction.load_monthly()
+        if results:
+            # αρχικοποίηση των μηνιαίων συναλλαγών και αποθήκευση στην λίστα
+            for result in results:
+                transaction = Transactions(self.connector)
+                transaction.type = result["type_of_trans"]
+                transaction.monthly = result["sub_type_of_trans"]
+                transaction.category = result["category"]
+                transaction.description = result["descr_of_trans"]
+                transaction.amount = result["amount"]
+                transaction.insert_date = result["insert_date"]
+                print_transactions.append(transaction)
+        else:
+            print("Δεν βρέθηκαν συναλλαγές.")
 
-    while True:
-        choice = int(input("1-Create: \n2-Update: \n3-Delete: \n4-EXIT: \n"))
-        if choice == 1:
-            transaction.create_transaction()
-        elif choice == 2:
-            transaction.update_transaction()
-        elif choice == 3:
-            transaction.delete_transaction()
-        elif choice == 4:
-            break
+        for transaction in print_transactions:
+            st = ""
+            st += f"Κατηγορία: {transaction.category}, Όνομα συναλλαγής: {transaction.description}, Τύπος συναλλαγής: "
+            # Έλεγχος αν είναι έσοδο/ έξοδο
+            if transaction.type == 1:
+                st += "Έσοδο, "
+            elif transaction.type == 2:
+                st += "Έξοδο, "
+            # Έλεγχος αν είναι μηνιαίο/ άλλο
+            st += "Μηνιαία συναλλαγή: "
+            if transaction.monthly == 1:
+                st += "Ναι, "
+            elif transaction.monthly == 2:
+                st += "Όχι, "
+            st += f"Ποσό: {transaction.amount}, Ημερομηνία συναλλαγής: {transaction.insert_date}."
+            print(st)
 
-    close_connection(connector)
-
-
-main()
+    def print_total(self):
+        """Η μέθοδος εμφανίζει το συνολικό χρηματικό ποσό"""
+        results = query_fetch_all(self.connector, "SELECT * FROM total_amount")
+        # Περίπτωση που υπάρχει ποσό μέσα στο total_amount
+        if results:
+            transaction = Transactions(self.connector)
+            transaction.total = results[0]["total"]
+            print(f"Συνολικό ποσό: {transaction.total}")
+        # Περίπτωση που δεν υπάρχει ποσό στο total_amount
+        else:
+            print("Δεν βρέθηκαν χρήματα στο συνολικό ποσό.")
