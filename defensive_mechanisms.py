@@ -34,7 +34,6 @@ def check_amount(amount):
         return 2
 
 
-
 def add_one_month(orig_date):
     new_year = orig_date.year
     # προσθέτει έναν μήνα στην αρχική ημερομηνία
