@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 from class_transactions import *
 from main_function import *
 from db_functions import *
-
+from defensive_mechanisms import *
 
 
 
@@ -17,9 +17,9 @@ class Project(CTk):
         self.geometry("1100x520")
         setup_database()
         #Σύνδεση με την βάση δεδομένων
-        connection=open_connection()
+        connector=open_connection()
         #Δημιουργία ενός αντικειμένου transaction της κλάσης Transactions το οποίο αλληλεπιδρά με την βάση δεδομένων
-        self.transaction=Transactions(connection)
+        self.transaction=Transactions(connector)
         self.transaction.load_monthly()
         main_text = (
             "Γειά σου!\n"
@@ -65,7 +65,7 @@ class Project(CTk):
         self.label4= CTkLabel(self, text=text4, font=("Arial", 30))
         self.entry2= CTkEntry(self, width=1, font=("Arial", 30))
         self.entry2.insert(0, "Πληκτρολογήστε εδώ...")
-        self.label8=CTkLabel(self,text="...",font=("Arial", 30))
+        self.label8=CTkLabel(self,text=" ",font=("Arial", 30))
         
         # Αρχικά απενεργοποίηση του κουμπιού "Επόμενο" στη σελίδα 2
         self.btn6c.configure(state=DISABLED)
@@ -75,8 +75,8 @@ class Project(CTk):
         text5= "Πρόκειται για μηνιαία συναλλαγή;"
         self.label5= CTkLabel(self, text=text5, font=("Arial", 30))
         self.radio_var1= IntVar(value=0)
-        self.btn_radio1= CTkButton(self, text="Όχι", font=("Arial", 30), command=lambda: self.set_radio_var(self.radio_var1, 1))
-        self.btn_radio2= CTkButton(self, text="Ναι", font=("Arial", 30), command=lambda: self.set_radio_var(self.radio_var1, 2))
+        self.btn_radio1= CTkButton(self, text="Ναι", font=("Arial", 30), command=lambda: self.set_radio_var(self.radio_var1, 1))
+        self.btn_radio2= CTkButton(self, text="Όχι", font=("Arial", 30), command=lambda: self.set_radio_var(self.radio_var1, 2))
         text6= "Η συναλλαγή σας αφορά:"
         self.label6= CTkLabel(self, text=text6, font=("Arial", 30))
         self.radio_var2= IntVar(value=0)
@@ -219,7 +219,6 @@ class Project(CTk):
 
 
     def epomeno2(self):
-        
         page=self.radio_var3.get()
         if page==1:
             self.show_page2()
@@ -228,26 +227,25 @@ class Project(CTk):
         elif page==4:
             self.show_page4()
 
-        
-        """if page==1:
-            self.transaction.create_transaction()
-        elif page==2:
-            self.transaction.update_transaction()
-        elif page==3:
-            self.transaction.delete_transaction()
-        elif page==4:
-            action=2
-        elif page==5:
-            action=3"""
+
         
     def epomeno3(self):
-        try:
+        page=self.radio_var3.get()
+        if page==1:
             self.transaction.category = self.entry1.get()
             self.transaction.description = self.entry2.get()
             print(f"Κατηγορία: {self.transaction.category}, Περιγραφή: {self.transaction.description}")
-            self.show_page3()
-        except Exception as e:
-            print(f"Error in epomeno3: {e}")
+            
+            results = self.transaction.load_transaction(self.transaction.description)
+            if results:
+                self.label8.configure(text="Η συναλλαγή υπάρχει ήδη. Παρακαλώ επιλέξτε άλλο όνομα.")
+                return
+            elif results is None:
+                    self.show_page3()
+
+            self.insert_date = date.today()
+
+
 
     def epomeno4(self):
         try:
@@ -403,9 +401,9 @@ class Project(CTk):
     def run(self):
         self.mainloop()
 
-
  
 if __name__ == "__main__":
     project = Project()
     project.run()
-
+    
+    
