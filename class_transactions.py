@@ -131,8 +131,8 @@ class Transactions:
 
             # ενημέρωση ημέρας σε περίπτωση που η ημερομηνίας της συναλλαγής βρίσκεται στο τέλος του μήνα
             original_day = transaction.original_date.day
-            last_day_of_current_month = \
-                calendar.monthrange(transaction.insert_date.year, transaction.insert_date.month)[1]
+            last_day_of_current_month =calendar.monthrange(transaction.insert_date.year, transaction.insert_date.month)[1]
+
             """Περίπτωση που η ημέρα της αρχικής ημερομηνίας είναι μεγαλύτερη απο την τελευταία μέρα του 
             συγκεκριμένου μήνα, αποθηκεύεται η τελευταία μέρα του συγκεκριμένου μήνα στην insert_date"""
             if original_day > last_day_of_current_month:
@@ -322,30 +322,3 @@ class Transactions:
         # Περίπτωση που δεν υπάρχει ποσό στο total_amount
         else:
             print("Δεν βρέθηκαν χρήματα στο συνολικό ποσό.")
-
-
-def main():
-    setup_database()
-    connector = open_connection()
-    transaction = Transactions(connector)
-    transaction.load_monthly()
-
-    while True:
-        choice = int(input("1-Create: \n2-Update: \n3-Delete: \n4-Print: \n5-Print Total \n6-EXIT: \n"))
-        if choice == 1:
-            transaction.create_transaction()
-        elif choice == 2:
-            transaction.update_transaction()
-        elif choice == 3:
-            transaction.delete_transaction()
-        elif choice == 4:
-            transaction.print_transactions()
-        elif choice == 5:
-            transaction.print_total()
-        elif choice == 6:
-            break
-
-    close_connection(connector)
-
-
-main()
