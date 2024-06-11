@@ -131,8 +131,8 @@ class Transactions:
 
             # ενημέρωση ημέρας σε περίπτωση που η ημερομηνίας της συναλλαγής βρίσκεται στο τέλος του μήνα
             original_day = transaction.original_date.day
-            last_day_of_current_month = \
-            calendar.monthrange(transaction.insert_date.year, transaction.insert_date.month)[1]
+            last_day_of_current_month =calendar.monthrange(transaction.insert_date.year, transaction.insert_date.month)[1]
+
             """Περίπτωση που η ημέρα της αρχικής ημερομηνίας είναι μεγαλύτερη απο την τελευταία μέρα του 
             συγκεκριμένου μήνα, αποθηκεύεται η τελευταία μέρα του συγκεκριμένου μήνα στην insert_date"""
             if original_day > last_day_of_current_month:
@@ -155,7 +155,7 @@ class Transactions:
         self.description = description
         self.monthly = monthly
         self.type = type
-        self.amount = amount
+        self.amount = float(amount)
         self.insert_date = date.today()
         self.original_date = date.today()
 
