@@ -3,16 +3,6 @@ from db_functions import *
 from charts import *
 from excel_projection import export_to_excel
 
-
-# Ορισμός της συνάρτησης για έλεγχο της ημερομηνίας κατά την εισαγωγή της
-def date_valid(date_str):
-    try:
-        datetime.strptime(date_str, "%d-%m-%Y")  # Ελέγχεται αν η συμβολοσειρά ταιριάζει με την υποδεικνυόμενη μορφή
-        return True
-    except ValueError:
-        return False
-
-
 def main():
     connection = open_connection()  # Έναρξη σύνδεσης με την βάση δεδομένων
     transaction = Transactions(connection)  # Δημιουργία αντικειμένου

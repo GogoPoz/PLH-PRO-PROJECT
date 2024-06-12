@@ -28,7 +28,7 @@ def export_to_excel(connection, year, month):
         return
 
     #Δημιουργία αρχείου Excel
-    filename = f"transactions_{year}_{month}.xlsx"
+    filename = f"transactions_{month}_{year}.xlsx"
     writer = pd.ExcelWriter(filename, engine='xlsxwriter')  #Δημιουργία αντικειμένου τύπου excel
 
     #Εγγραφή του dataframe στο αρχείο excel
