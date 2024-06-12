@@ -1,3 +1,4 @@
+
 from customtkinter import *
 from tkinter import *
 from PIL import Image, ImageTk
@@ -102,6 +103,14 @@ class Project(CTk):
         self.btn_radio12= CTkButton(self, text="Κατηγορία",compound="top", font=("Arial", 30),command=lambda:  self.update_radio_buttons3_and_var4(3))
         self.btn_radio13= CTkButton(self, text="Προσθήκη/ Αφαίρεση",compound="top", font=("Arial", 30),command=lambda:  self.update_radio_buttons3_and_var4(4))
 
+        #widgets για page3a
+        self.label9= CTkLabel(self, text=text3, font=("Arial", 30))
+        self.entry3= CTkEntry(self, width=1, font=("Arial", 30))
+        self.entry3.insert(0, "Πληκτρολογήστε εδώ...")
+        self.btn6d.configure(state=NORMAL)
+
+
+
 
 
     #Μορφοποίηση σελίδων
@@ -150,6 +159,14 @@ class Project(CTk):
             self.entry2.grid(row=4, column=0, columnspan=4, sticky='ew')
             self.btn5.grid(row=5, column=0, padx=10, pady=10, sticky='sw')
             self.btn6c.grid(row=5, column=3, padx=10, pady=10, sticky='se')
+        elif page==2:
+            self.label3.grid(row=1, column=0, columnspan=4, sticky='ew')
+            self.entry1.grid(row=2, column=0, columnspan=4, sticky='ew')
+            self.label4.grid(row=3, column=0, columnspan=4, sticky='ew')
+            self.entry2.grid(row=4, column=0, columnspan=4, sticky='ew')
+            self.btn5.grid(row=5, column=0, padx=10, pady=10, sticky='sw')
+            self.btn6c.grid(row=5, column=3, padx=10, pady=10, sticky='se')
+            self.btn6c.configure(command=self.epomeno3)
         else:
             self.label4.grid(row=1, column=0, columnspan=4, sticky='ew')
             self.entry2.grid(row=2, column=0, columnspan=4, sticky='ew')
@@ -165,10 +182,17 @@ class Project(CTk):
         self.entry1.bind("<KeyRelease>", self.check_entries)
         self.entry2.bind("<KeyRelease>", self.check_entries)
 
+
+
+
     def show_page2a(self):
         self.clear_page()
         self.label3.grid(row=0, column=0, columnspan=4, sticky='ew')
         self.entry1.grid(row=1, column=0, columnspan=4, sticky='ew')
+
+        self.entry1.bind("<KeyRelease>", self.check_entries)
+        self.entry1.bind("<FocusIn>", self.on_entry_click)
+        self.entry1.bind("<FocusOut>", self.on_focus_out)
 
     def show_page2b(self):
         self.clear_page()
@@ -179,7 +203,8 @@ class Project(CTk):
         self.btn_radio13.grid(row=1, column=3, rowspan=3, columnspan=1, padx=10, pady=10)
         self.btn5.grid(row=4, column=0, padx=10, pady=10, sticky='sw')
         self.btn6b.grid(row=4, column=4, padx=10, pady=10, sticky='se')
-        self.btn6b.configure(command=self.show_page3)
+        self.btn6b.configure(command=self.show_page3a)
+        
 
     def show_page3(self):
         self.clear_page()
@@ -205,7 +230,38 @@ class Project(CTk):
     def show_page4(self):
         self.clear_page()
         self.label7.grid(row=0,column=3,columnspan=5,sticky='ew')
+    
+    def show_page3a(self):
+        self.clear_page()
+        choice=self.radio_var4.get()
+        self.label9.grid(row=0, column=0, columnspan=4, sticky='ew')
+        self.entry3.grid(row=1, column=0, columnspan=4, sticky='ew')
+        self.btn5.grid(row=4, column=0, padx=10, pady=10, sticky='sw')
+        self.btn9.grid(row=4, column=3, padx=10, pady=10, sticky='sw')
+        self.btn6d.grid(row=4, column=3, padx=10, pady=10, sticky='se')
+        self.label9.configure(text=" ")
+        self.entry3.bind("<FocusIn>", self.on_entry_click)
+        self.entry3.bind("<FocusOut>", self.on_focus_out)
+        self.entry3.bind("<FocusOut>", self.on_focus_out)
+        self.btn9.configure(state=NORMAL)
 
+
+        if choice==1:
+            self.label9.configure(text="Εισάγετε το νέο ποσό.")
+            
+        elif choice==2:
+            self.label9.configure(text="Εισάγετε το νέο όνομα.")
+            
+        elif choice==3:
+            self.label9.configure(text="Εισάγετε τη νέα κατηγορία.")
+            
+        elif choice==4:
+            pass
+
+
+        
+        
+        
 
     def money_input(self):
         money_dialog = CTkInputDialog(text="Πληκτρολογήστε το ποσό...", title="Ποσό σε €")
@@ -223,41 +279,134 @@ class Project(CTk):
         if page==1:
             self.show_page2()
         elif page==2:
-            self.show_page2b()
+            self.show_page2()
+        elif page==3:
+            self.show_page2()
         elif page==4:
             self.show_page4()
 
 
-        
+
+      
+    
+    
     def epomeno3(self):
+        choice=self.radio_var4.get()
         page=self.radio_var3.get()
         if page==1:
             self.transaction.category = self.entry1.get()
             self.transaction.description = self.entry2.get()
             print(f"Κατηγορία: {self.transaction.category}, Περιγραφή: {self.transaction.description}")
-            
+            cat=check_description(self.transaction.category)
+            des=check_description(self.transaction.description)
             results = self.transaction.load_transaction(self.transaction.description)
             if results:
                 self.label8.configure(text="Η συναλλαγή υπάρχει ήδη. Παρακαλώ επιλέξτε άλλο όνομα.")
-                return
+                if cat==0 or des==0:
+                    self.label8.configure(text="Λάθος είσοδος. Παρακαλώ προσπαθήστε ξανά")
+                    self.show_page2()
+                elif cat==2 or des==2:
+                    self.label8.configure(text="Παρακαλώ εισάγετε μόνο γράμματα ή αριθμούς.")
+                    self.show_page2()
+                
             elif results is None:
+                if cat==0 or des==0:
+                    self.label8.configure(text="Λάθος είσοδος. Παρακαλώ προσπαθήστε ξανά")
+                    self.show_page2()
+                elif cat==2 or des==2:
+                    self.label8.configure(text="Παρακαλώ εισάγετε μόνο γράμματα ή αριθμούς.")
+                    self.show_page2()
+                elif cat==1 and des==1:
                     self.show_page3()
+
+                    
+                    
 
             self.insert_date = date.today()
 
+        elif page==2:
+            self.transaction.category = self.entry1.get()
+            self.transaction.description = self.entry2.get()
+            print(f"Κατηγορία: {self.transaction.category}, Περιγραφή: {self.transaction.description}")
+            cat=check_description(self.transaction.category)
+            des=check_description(self.transaction.description)
+            results = self.transaction.load_transaction(self.transaction.description)
+            results1=self.transaction.load_transaction(self.transaction.category)
+            if results or results1:
+                self.label8.configure(text="Η συναλλαγή υπάρχει.")
+                if cat==0 or des==0:
+                    self.label8.configure(text="Λάθος είσοδος. Παρακαλώ προσπαθήστε ξανά")
+                    self.show_page2()
+                elif cat==2 or des==2:
+                    self.label8.configure(text="Παρακαλώ εισάγετε μόνο γράμματα ή αριθμούς.")
+                    self.show_page2()
+                elif des==1 and cat==1:
+                    self.show_page3a()
+            elif results or results1 is None:
+                self.label8.configure(text="Η συναλλαγή δεν υπάρχει.")
+                if cat==0 or des==0:
+                    self.label8.configure(text="Λάθος είσοδος. Παρακαλώ προσπαθήστε ξανά")
+                    self.show_page2()
+                elif cat==2 or des==2:
+                    self.label8.configure(text="Παρακαλώ εισάγετε μόνο γράμματα ή αριθμούς.") 
+                    self.show_page2()
+            self.insert_date = date.today()
+            
+        elif page==3:
+            self.transaction.description = self.entry2.get()
+            print(f"Κατηγορία: {self.transaction.category}, Περιγραφή: {self.transaction.description}")
+            des=check_description(self.transaction.description)
+            results = self.transaction.load_transaction(self.transaction.description)
+            results1=self.transaction.load_transaction(self.transaction.category)
+            if results or results1:
+                self.label8.configure(text="Η συναλλαγή υπάρχει. Και διαγράφηκε επιτυχώς")
+                if des==0:
+                    self.label8.configure(text="Λάθος είσοδος. Παρακαλώ προσπαθήστε ξανά")
+                    self.show_page2()
+                elif des==2:
+                    self.label8.configure(text="Παρακαλώ εισάγετε μόνο γράμματα ή αριθμούς.")
+                    self.show_page2()
+                elif des==1:
+                    self.call_transactions()
+            elif results or results1 is None:
+                self.label8.configure(text="Η συναλλαγή δεν υπάρχει.")
+                if des==0:
+                    self.label8.configure(text="Λάθος είσοδος. Παρακαλώ προσπαθήστε ξανά")
+                    self.show_page2()
+                elif des==2:
+                    self.label8.configure(text="Παρακαλώ εισάγετε μόνο γράμματα ή αριθμούς.") 
+                    self.show_page2()
+            self.insert_date = date.today()
+                 
+                
+            
 
 
     def epomeno4(self):
-        try:
-            self.transaction.monthly=self.radio_var1.get()
-            self.transaction.type=self.radio_var2.get()
-            print(f"Μηνιαία:{self.transaction.monthly},Εσοδο/Εξοδο:{self.transaction.type} ")
-            self.money_input()
-        except Exception as e:
-            print(f"Error in epomeno3: {e}")
-            
+        page=self.radio_var3.get()
+        if page==1:
+            try:
+                self.transaction.monthly=self.radio_var1.get()
+                self.transaction.type=self.radio_var2.get()
+                print(f"Μηνιαία:{self.transaction.monthly},Εσοδο/Εξοδο:{self.transaction.type} ")
+                self.money_input()
+            except Exception as e:
+                print(f"Error in epomeno3: {e}")
+        elif page==2:
+            try:
+                self.new_amount=self.entry3.get()
+                self.new_description=self.entry3.get()
+                self.new_category=self.entry3.get()
+                print(f"Μηνιαία:{self.transaction.monthly},Εσοδο/Εξοδο:{self.transaction.type} ")
+            except Exception as e:
+                print(f"Error in epomeno3: {e}")
 
-          
+
+    def epomeno5():
+        pass
+
+            
+         
     def set_radio_var(self, var, value):
 
         var.set(value)
@@ -271,6 +420,7 @@ class Project(CTk):
             self.btn6d.configure(state=NORMAL)
         else:
             self.btn6d.configure(state=DISABLED)
+        
 
 
 
@@ -391,13 +541,38 @@ class Project(CTk):
                 self.btn6c.configure(state=DISABLED)
 
     def call_transactions(self):
-        category=self.transaction.category
-        description=self.transaction.description
-        monthly=self.transaction.monthly
-        type=self.transaction.type
-        amount=self.transaction.amount
-        self.transaction.create_transaction(category,description,monthly,type,amount)
-
+        page=self.radio_var3.get()
+        choice=self.radio_var4.get()
+        if page==1:
+            category=self.transaction.category
+            description=self.transaction.description
+            monthly=self.transaction.monthly
+            type=self.transaction.type
+            amount=self.transaction.amount
+            self.transaction.create_transaction(category,description,monthly,type,amount)
+        elif page==2:
+            if choice==1:
+                new_amount=float(self.new_amount)
+                old_amount=self.transaction.amount
+                type=self.transaction.type
+                description=self.transaction.description
+                self.transaction.update_amount(new_amount,old_amount,type,description)
+            elif choice==2:
+                old_description=self.transaction.description
+                new_description=self.new_description
+                self.transaction.update_description(old_description,new_description)
+            elif choice==3:
+                old_category=self.transaction.category
+                new_category=self.new_category
+                description=self.transaction.description
+                self.transaction.update_category(old_category,new_category,description)
+            elif choice==4:
+                pass
+        elif page==3:
+            description=self.transaction.description
+            type=self.transaction.type
+            amount=self.transaction.amount
+            self.transaction.delete_transaction(description,type,amount)
     def run(self):
         self.mainloop()
 
@@ -405,5 +580,4 @@ class Project(CTk):
 if __name__ == "__main__":
     project = Project()
     project.run()
-    
     
